@@ -1,0 +1,45 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
+<%@ include file="/plugins/wtk/jsp/common/include/pageCommonEtc.jsp" %>	
+<html>
+<head>
+</head>
+<script type="text/javascript">
+	
+	//====================================================
+	// 로그인 결과 처리
+	//====================================================
+	if("${LOGIN_RESULT.SUCC_YN}" == 'N'){
+	    if ("${LOGIN_RESULT.ERROR_CODE}" == -10) {
+	    	window.top.location.href		= "<spring:url value='/plugins/wtk/jsp/common/error/_no_authority.jsp'/>";
+	    } else if ("${LOGIN_RESULT.ERROR_CODE}" == -20 || "${LOGIN_RESULT.ERROR_CODE}" == -30) {
+	    	window.top.location.href		= "<spring:url value='/plugins/wtk/jsp/common/error/_exception.jsp'/>";
+	    } else if ("${LOGIN_RESULT.ERROR_CODE}" == -1205) {
+	    	alert('통합인증이 종료되었거나, 올바르지 않은 사용 형태에 의한 오류입니다. 다시 로그인하여 사용하십시오.');
+	    	
+	    	window.close();
+	    } else if ("${LOGIN_RESULT.ERROR_CODE}" == -9404) {
+	    	alert('이중로그인에 의해 통합인증이 종료되었습니다. 다시 로그인하여 사용하십시오.');
+	    	
+	    	window.close();
+	    } else if ("${LOGIN_RESULT.ERROR_CODE}" == -9405) {
+	    	alert('통합인증이 종료되었습니다. 다시 로그인하여 사용하십시오.');
+	    	
+	    	window.close();
+	    } else if ("${LOGIN_RESULT.ERROR_CODE}" == -999) {
+			alert('SSO토큰이 전달되지 않았습니다.');
+	    	
+	    	window.close();
+	    	
+	    } else if ("${LOGIN_RESULT.ERROR_CODE}" < 0) {
+	    	 alert('통합인증 오류가 발생했습니다. 잠시 후 다시 사용하여주십시오. 동일 현상이 지속되면 관리자에게 문의해주십시오.\\n\\n리턴코드(${LOGIN_RESULT.ERROR_CODE})');
+	    	 
+	    	 window.close();
+	    }
+	} else {
+		parent.location.href		= "<spring:url value='/main/main.do'/>";
+	}
+</script>
+<body>
+<body>
+</body>
+</html>

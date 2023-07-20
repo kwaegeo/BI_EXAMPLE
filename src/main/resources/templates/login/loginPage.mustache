@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="expires" content="0" />
+    <title><%=appName%></title>
+    <!-- stylesheet css -->
+    <link rel="stylesheet" type="text/css" href="css/login.css" >
+    <!-- // stylesheet css -->
+<script>
+    //=========================================================================
+    // 화면을 초기화 한다.
+    //  1. 이벤트 정의
+    //=========================================================================
+    $(document).ready(function() {
+        
+    	
+        //최초 쿠키에 login_id라는 쿠키값이 존재하면
+        var USER_ID = $.cookie('USER_ID');
+        if(USER_ID != undefined) {
+            //아이디에 쿠키값을 담는다
+            $("#USER_ID").val(USER_ID);
+            //아이디저장 체크박스 체크를 해놓는다
+            $("#idsave").prop("checked",true);
+        }
+    	
+        //====================================================
+        // 1. 이벤트 정의
+        //====================================================
+        $('#USER_ID').focus();
+        
+        // 로그인 버튼 클릭
+        $('#login').on("click", function(e) {
+        	e.preventDefault();
+        	if($('#USER_ID').val() == ''){
+        		$('#USER_ID').focus();
+        	}else if($('#PWD').val() == '' && $('#USER_ID').val() != 'administrator'){
+        		$('#PWD').focus();
+        	}else{
+        		login();
+        	}
+        });
+    });
+    
+    
+    //=========================================================================
+    // 로그인 처리를 한다.
+    //  1. 로그인 처리를 한다.
+    //  @서비스 URL 
+    //      로그인 처리 : /login/loginBack.do
+    //=========================================================================
+    function login() {
+        
+        if($("#idsave").prop("checked")) {
+            $.cookie('USER_ID', $("#USER_ID").val());
+        } else {
+            $.cookie('USER_ID', null);
+        }
+
+        var oForm       = document.forms['login'];          
+        oForm.target    = "_self";      
+        oForm.action    = "/login/loginBack.do";
+        oForm.submit();
+    }
+    
+</script>
+</head>
+<body>
+    <div class="login container">
+        <div class="login_zone"> 
+            <div class="left_zone">
+                <h1 style='color: #000;font: normal 50px/normal "Malgun Gothic";'>LOGIN</h1>
+                <div class="login_line"></div>
+                <p style='font:normal 16px/normal "Malgun Gothic";width:260px;'>인사이드정보 BI시스템에 오신것을 환영합니다.</p>
+<form name="login" method="post">
+                <input type="hidden" name="isLDAP" id="isLDAP" value="1"/>
+                <input type="text" class="id" placeholder="ID" id="USER_ID" name='USER_ID' title="User ID"/>
+                <input type="password" class="pw" placeholder="Password" id="PWD" name='PWD' title="Password"/>
+                <div class="idsave-zone">
+                    <input type="checkbox" name="idsave" id="idsave" value="1" style="vertical-align:bottom;">
+                    <label for="idsave"><span style='font: normal 12px/normal "Malgun Gothic";'>아이디 저장</span></label>
+                </div>
+                <button class="login_btn" id="login" name="login" style='font:normal 12px/normal "Arial";'>Sign in</button>
+</form>
+            </div>
+            <div class="right_zone">
+                <img src="img/login-logo.png" alt="">
+            </div>
+        </div>
+    </div>
+    <div style='display:none'>
+    <iframe id='ifrmLogin' name='ifrmLogin' style='display:none;'></iframe>
+    </div>
+</body>
+</html>
