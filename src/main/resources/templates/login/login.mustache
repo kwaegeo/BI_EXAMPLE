@@ -114,12 +114,14 @@
                 data: JSON.stringify(requestData),
                 contentType: "application/json",
                 method: 'POST',
-                dataType: "json",
+                dataType: "text",
                 success: function (responseData) {
-                    if (responseData.code === 'S00') {
+                    if (responseData === 'S00') {
+                        console.log(responseData)
+                        alert(responseData)
                         alert('정상적으로 로그인 되었습니다.')
                     } else {
-                        alert(responseData.msg)
+                        alert(responseData)
                     }
                 },
                 error: function () {

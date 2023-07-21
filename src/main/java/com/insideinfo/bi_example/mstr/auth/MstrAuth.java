@@ -1,21 +1,22 @@
-package com.insideinfo.bi_example.sample.sampleService;
+package com.insideinfo.bi_example.mstr.auth;
+
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.insideinfo.bi_example.login.vo.FoldersVO;
 import com.insideinfo.bi_example.sample.sampleVO.SampleVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 @Service
-public class SampleService {
+public class MstrAuth {
 
-    @Value("${BASEIP}")
+    @Value("${BASEURL}")
     private String BASEURL;
 
     @Value("${BASEIP}")
@@ -27,16 +28,17 @@ public class SampleService {
     @Value("${PROJECTID}")
     private String PROJECTID;
 
-    public Map<String, String> getAuthToken() throws JsonProcessingException {
+    public Map<String, String> getAuthToken(Map<String, String> loginMap) throws JsonProcessingException {
 
-        String b = "http://192.168.70.245:8080/MicroStrategyLibrary/api/auth/login";
-        System.out.println(b);
+        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "/auth/login";
 
-        RestTemplate restTemplate = new RestTemplate();
+        System.out.println("요청 URL: " + apiUrl);
+
+        //header 생성
         org.springframework.http.HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-
+        //body 값 추가
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("username", "administrator");
         requestBody.put("password", "");
@@ -52,11 +54,12 @@ public class SampleService {
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyJson, httpHeaders);
 
         ResponseEntity<String> response = new RestTemplate().exchange(
-                b,
+                apiUrl,
                 HttpMethod.POST,
                 requestEntity,
                 String.class
         );
+
         String mstrAuthToken = response.getHeaders().getFirst("X-MSTR-AuthToken");
 
         List<String> cookieList = response.getHeaders().get(HttpHeaders.SET_COOKIE);
@@ -65,7 +68,6 @@ public class SampleService {
         System.out.println(cookieList);
 
         String cookiesAsString = String.join("; ", cookieList);
-
         Map<String, String> maps = new HashMap<>();
 
         maps.put("token", mstrAuthToken);
@@ -74,39 +76,29 @@ public class SampleService {
         return maps;
     }
 
+    public List<FoldersVO> getFolderList(Map<String, String> mstrAuthInfo) throws JsonProcessingException {
+        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "/folders";
 
-    public void getReports(Map<String, String> myMap) throws JsonProcessingException {
+        System.out.println("요청 URL: " + apiUrl);
 
-        String b = "http://192.168.70.245:8080/MicroStrategyLibrary/api/folders/78AAF4654A62E9D384D0E094BE585507";
-        System.out.println(b);
-        System.out.println(myMap);
-        System.out.println("bndanbiadbniabn");
-        System.out.println(myMap.get("cookies"));
-        RestTemplate restTemplate = new RestTemplate();
         org.springframework.http.HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.set("X-MSTR-AuthToken", myMap.get("token"));
-        httpHeaders.set(HttpHeaders.COOKIE, myMap.get("cookies"));
+        httpHeaders.set("X-MSTR-AuthToken", mstrAuthInfo.get("token"));
+        httpHeaders.set(HttpHeaders.COOKIE, mstrAuthInfo.get("cookies"));
         httpHeaders.set("X-MSTR-ProjectID", "B19DEDCC11D4E0EFC000EB9495D0F44F");
 
         HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
 
-        ResponseEntity<List<SampleVO>> response = restTemplate.exchange(
-                b,
+
+        ResponseEntity<List<FoldersVO>> response = new RestTemplate().exchange(
+                apiUrl,
                 HttpMethod.GET,
                 requestEntity,
-                new ParameterizedTypeReference<List<SampleVO>>() {
+                new ParameterizedTypeReference<List<FoldersVO>>() {
                 }
         );
-        List<SampleVO> reports = response.getBody();
+        List<FoldersVO> folderList = response.getBody();
 
-        for(int i=0; i<reports.size(); i++){
-                System.out.println(reports.get(i));
-
-        }
-
+        return folderList;
     }
-
-
-
 }

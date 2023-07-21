@@ -1,6 +1,13 @@
 package com.insideinfo.bi_example.login.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.insideinfo.bi_example.login.vo.FoldersVO;
+import com.insideinfo.bi_example.mstr.auth.MstrAuth;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <pre>
@@ -14,6 +21,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginService {
 
+    @Autowired
+    private MstrAuth mstrAuth;
     /**
      * <pre>
      * 메소스명		: login
@@ -25,8 +34,17 @@ public class LoginService {
      * @param loginMap : HTTP 요청 Body
      * @return ModelAndView : login/loginPage.jsp 화면
      */
-    public void login(){
+    public Map<String, String> login(Map<String, String> loginMap) throws JsonProcessingException {
+
+        Map<String, String> mstrInfoMap = mstrAuth.getAuthToken(loginMap);
+
+        return mstrInfoMap;
+    }
 
 
+    public List<FoldersVO> getFolderList(Map<String,String> mstrAuthInfo) throws JsonProcessingException {
+        List<FoldersVO> folderList = mstrAuth.getFolderList(mstrAuthInfo);
+
+        return folderList;
     }
 }
