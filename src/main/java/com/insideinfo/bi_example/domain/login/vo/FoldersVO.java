@@ -1,4 +1,4 @@
-package com.insideinfo.bi_example.login.vo;
+package com.insideinfo.bi_example.domain.login.vo;
 
 import com.insideinfo.bi_example.sample.sampleVO.SampleVO;
 import lombok.Data;

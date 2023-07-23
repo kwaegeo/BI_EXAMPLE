@@ -1,10 +1,9 @@
-package com.insideinfo.bi_example.mstr.auth;
+package com.insideinfo.bi_example.global.mstr.auth;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.insideinfo.bi_example.login.vo.FoldersVO;
-import com.insideinfo.bi_example.sample.sampleVO.SampleVO;
+import com.insideinfo.bi_example.domain.login.vo.FoldersVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -30,7 +29,7 @@ public class MstrAuth {
 
     public Map<String, String> getAuthToken(Map<String, String> loginMap) throws JsonProcessingException {
 
-        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "/auth/login";
+        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "auth/login";
 
         System.out.println("요청 URL: " + apiUrl);
 
@@ -77,7 +76,7 @@ public class MstrAuth {
     }
 
     public List<FoldersVO> getFolderList(Map<String, String> mstrAuthInfo) throws JsonProcessingException {
-        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "/folders";
+        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "folders";
 
         System.out.println("요청 URL: " + apiUrl);
 
@@ -101,4 +100,31 @@ public class MstrAuth {
 
         return folderList;
     }
+
+    public List<FoldersVO> getFolderInfo(Map<String, String> mstrAuthInfo) throws JsonProcessingException {
+        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "folders";
+
+        System.out.println("요청 URL: " + apiUrl);
+
+        org.springframework.http.HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        httpHeaders.set("X-MSTR-AuthToken", mstrAuthInfo.get("token"));
+        httpHeaders.set(HttpHeaders.COOKIE, mstrAuthInfo.get("cookies"));
+        httpHeaders.set("X-MSTR-ProjectID", "B19DEDCC11D4E0EFC000EB9495D0F44F");
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
+
+
+        ResponseEntity<List<FoldersVO>> response = new RestTemplate().exchange(
+                apiUrl,
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<List<FoldersVO>>() {
+                }
+        );
+        List<FoldersVO> folderList = response.getBody();
+
+        return folderList;
+    }
+
 }

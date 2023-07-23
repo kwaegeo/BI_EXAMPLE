@@ -53,9 +53,9 @@
 
             {{#folderList}}
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
+            <li class="nav-item" onclick="getFolderInfo('{{id}}')">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo{{id}}"
-                    aria-expanded="true" aria-controls="collapseTwo">
+                    aria-expanded="true" aria-controls="collapseTwo" id="{{id}}">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>{{name}}</span>
                 </a>
@@ -389,6 +389,34 @@
     <script src="/js/demo/chart-area-demo.js"></script>
     <script src="/js/demo/chart-pie-demo.js"></script>
 
+    <script type="text/javascript">
+        function getFolderInfo(folderId){
+
+            const requestData = {'folderId': folderId}
+
+            $.ajax({
+                url: '/folders',
+                data: requestData,
+                method: 'GET',
+                dataType: "text",
+                success: function (responseData) {
+                    if (responseData === 'S00') {
+                        console.log(responseData)
+                        alert(responseData)
+                        alert('정상적으로 로그인 되었습니다.')
+                    } else {
+                        alert(responseData)
+                    }
+                },
+                error: function () {
+                    alert("서버에 접속할 수 없습니다.")
+                }
+            })
+        }
+
+
+
+    </script>
 </body>
 
 </html>

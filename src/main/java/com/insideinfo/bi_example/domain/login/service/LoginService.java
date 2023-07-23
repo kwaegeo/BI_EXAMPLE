@@ -1,8 +1,8 @@
-package com.insideinfo.bi_example.login.service;
+package com.insideinfo.bi_example.domain.login.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.insideinfo.bi_example.login.vo.FoldersVO;
-import com.insideinfo.bi_example.mstr.auth.MstrAuth;
+import com.insideinfo.bi_example.domain.login.vo.FoldersVO;
+import com.insideinfo.bi_example.global.mstr.auth.MstrAuth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +23,7 @@ public class LoginService {
 
     @Autowired
     private MstrAuth mstrAuth;
+
     /**
      * <pre>
      * 메소스명		: login

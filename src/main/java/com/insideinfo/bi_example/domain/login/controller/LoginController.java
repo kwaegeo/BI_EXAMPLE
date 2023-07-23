@@ -1,14 +1,12 @@
-package com.insideinfo.bi_example.login.controller;
+package com.insideinfo.bi_example.domain.login.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.insideinfo.bi_example.login.service.LoginService;
-import com.insideinfo.bi_example.login.vo.FoldersVO;
-import com.insideinfo.bi_example.mstr.auth.MstrAuth;
+import com.insideinfo.bi_example.domain.login.vo.FoldersVO;
+import com.insideinfo.bi_example.domain.login.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -94,7 +92,10 @@ public class LoginController {
 
         List<FoldersVO> folderList = loginService.getFolderList(mstrAuthInfo);
 
-        System.out.println(folderList);
+
+        for (FoldersVO folder: folderList) {
+            System.out.println(folder);
+        }
 
         model.addAttribute("folderList", folderList);
 
@@ -103,3 +104,7 @@ public class LoginController {
     }
 
 }
+
+
+
+
