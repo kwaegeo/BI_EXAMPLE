@@ -101,30 +101,6 @@ public class MstrAuth {
         return folderList;
     }
 
-    public List<FoldersVO> getFolderInfo(Map<String, String> mstrAuthInfo) throws JsonProcessingException {
-        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "folders";
 
-        System.out.println("요청 URL: " + apiUrl);
-
-        org.springframework.http.HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.set("X-MSTR-AuthToken", mstrAuthInfo.get("token"));
-        httpHeaders.set(HttpHeaders.COOKIE, mstrAuthInfo.get("cookies"));
-        httpHeaders.set("X-MSTR-ProjectID", "B19DEDCC11D4E0EFC000EB9495D0F44F");
-
-        HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
-
-
-        ResponseEntity<List<FoldersVO>> response = new RestTemplate().exchange(
-                apiUrl,
-                HttpMethod.GET,
-                requestEntity,
-                new ParameterizedTypeReference<List<FoldersVO>>() {
-                }
-        );
-        List<FoldersVO> folderList = response.getBody();
-
-        return folderList;
-    }
 
 }

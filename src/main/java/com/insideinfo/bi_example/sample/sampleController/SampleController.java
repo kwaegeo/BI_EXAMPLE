@@ -2,17 +2,27 @@ package com.insideinfo.bi_example.sample.sampleController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.insideinfo.bi_example.sample.sampleService.SampleService;
+import com.microstrategy.utils.serialization.EnumWebPersistableState;
+import com.microstrategy.web.objects.WebIServerSession;
+import com.microstrategy.web.objects.WebObjectsException;
+import com.microstrategy.web.objects.WebObjectsFactory;
+import com.microstrategy.webapi.EnumDSSXMLAuthModes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
+
 
 @Controller
 public class SampleController {
 
     @Autowired
     private SampleService sampleService;
+
+    private static WebObjectsFactory factory = null;
+    private static WebIServerSession serverSession = null;
 
     @GetMapping("/sample")
     public String sampleMain() throws JsonProcessingException, InterruptedException {
@@ -23,6 +33,52 @@ public class SampleController {
 
         return "/index";
     }
+
+    @GetMapping("/test5")
+    @ResponseBody
+    public String test5(){
+        if (serverSession == null) {
+            // create factory object
+            factory = WebObjectsFactory.getInstance();
+            serverSession = factory.getIServerSession();
+
+            // Set up session properties
+            serverSession.setServerName("192.168.70.245"); // Should be replaced with the name of an Intelligence Server
+            serverSession.setAuthMode(1);
+            serverSession.setServerPort(0);
+            serverSession.setProjectName("MicroStrategy Tutorial"); // Project where session is created
+            serverSession.setLogin("administrator"); // User ID
+            serverSession.setPassword(""); // Password
+            // Initialize the session with the above parameters
+            try {
+                System.out.println("nSession created with ID: "+ serverSession.getSessionID());
+                System.out.println("Session State: "+ serverSession.saveState(2));
+            } catch (WebObjectsException ex) {
+                System.out.println( "Error creating session:" + ex.getMessage());
+            }
+        }
+        // Return session
+        StringBuilder urlSB = new StringBuilder();
+        urlSB.append("http").append("://").append("192.168.70.245:8090"); //Web Server name and port
+        urlSB.append("/MicroStrategy/servlet/mstrWeb");
+        urlSB.append("?server=").append("192.168.70.245"); //I Server name
+        // urlSB.append("&port=0");
+        urlSB.append("&project=").append("MicroStrategy+Tutorial"); // Project name
+        urlSB.append("&evt=").append(4001);
+        urlSB.append("&reportID=").append("E0DE2E1B408BD9FA8941E5B2E4FE876D"); //Report ID
+        urlSB.append("&reportViewMode=").append(1);
+        urlSB.append("&src=mstrWeb.").append("reportNoHeaderNoFooterNoPath").append(".").append(4001);
+        urlSB.append("&usrSmgr=").append(serverSession.saveState(2));
+
+        System.out.println(urlSB.toString()); // Final URL is printed to console.
+        System.out.println();
+
+        System.out.println("이거 맞나");
+
+        return "되고있는중인가?";
+    }
+
+
 
     @GetMapping("/test3")
     public String test1(){

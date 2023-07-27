@@ -34,6 +34,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-jersey
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jersey', version: '2.7.5'
     implementation group: 'javax.xml.ws', name: 'jaxws-api', version: '2.2.9'
+    implementation fileTree(dir: 'libs', includes: ['*.jar'])
 }
 
 tasks.named('test') {

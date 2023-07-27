@@ -42,7 +42,6 @@
 <!--                                        <h1 class="h4 text-gray-900 mb-4">INSIDEINFO MSTR PORTAL</h1>-->
                                         <img src="/img/InsideLogo.jpg" style="margin: 4px auto 40px auto; "/>
                                     </div>
-                                    <form class="user">
                                         <div class="form-group">
                                             <input type="text" class="form-control form-control-user"
                                                 id="loginId" name="loginId" aria-describedby="idHelp"
@@ -62,7 +61,6 @@
                                         <button onclick="login()" class="btn btn-primary btn-user btn-block">
                                             Login
                                         </button>
-                                    </form>
                                     <hr>
                                     <div class="text-center">
                                         <a class="small" href="forgot-password.html">Forgot Password?</a>
@@ -100,10 +98,10 @@
                 loginId.focus()
                 return alert("ID를 입력해주세요.")
             }
-            if(!loginPassword.val()){
-                loginPassword.focus()
-                return alert("Password를 입력해주세요")
-            }
+            // if(!loginPassword.val()){
+            //     loginPassword.focus()
+            //     return alert("Password를 입력해주세요")
+            // }
 
             const requestData = {
                 'loginId': loginId.val(),
@@ -111,7 +109,7 @@
             }
 
             $.ajax({
-                url: '/login/login',
+                url: '/login/loginProcess',
                 data: JSON.stringify(requestData),
                 contentType: "application/json",
                 method: 'POST',
@@ -121,6 +119,7 @@
                         console.log(responseData)
                         alert(responseData)
                         alert('정상적으로 로그인 되었습니다.')
+                        location.href = "/login/main"
                     } else {
                         alert(responseData)
                     }
