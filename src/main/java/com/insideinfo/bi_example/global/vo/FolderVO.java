@@ -1,13 +1,11 @@
-package com.insideinfo.bi_example.domain.login.vo;
+package com.insideinfo.bi_example.global.vo;
 
-import com.insideinfo.bi_example.sample.sampleVO.SampleVO;
 import lombok.Data;
 
 import java.time.Instant;
 
-
 @Data
-public class FoldersVO {
+public class FolderVO {
     private String name;
     private String id;
     private int type;

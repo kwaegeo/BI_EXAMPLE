@@ -60,9 +60,7 @@
                     <span>{{name}}</span>
                 </a>
                 <div id="collapseTwo{{id}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="buttons.html">관리지사</a>
-                        <a class="collapse-item" href="cards.html">고객 만족도 평가</a>
+                    <div class="bg-white py-2 collapse-inner rounded" id="root{{id}}">
                     </div>
                 </div>
             </li>
@@ -392,20 +390,29 @@
     <script type="text/javascript">
         function getFolderInfo(folderId){
 
+            const folderRoot = $('#root'+folderId)
+
             const requestData = {'folderId': folderId}
 
             $.ajax({
-                url: '/folders',
+                url: '/folder/subList',
                 data: requestData,
                 method: 'GET',
-                dataType: "text",
+                dataType: "json",
                 success: function (responseData) {
-                    if (responseData === 'S00') {
-                        console.log(responseData)
-                        alert(responseData)
-                        alert('정상적으로 로그인 되었습니다.')
+                    if (responseData.code === 'S00') {
+                        folderRoot.children().remove();
+                        responseData.folderList.forEach(function (item, index){
+                            var newHtml = $("<span>", {
+                                "class": "collapse-item",
+                                "id": item.id,
+                                "onclick": getReportInfo(item.id),
+                                "text": item.name
+                            });
+                        folderRoot.append(newHtml);
+                        })
                     } else {
-                        alert(responseData)
+                        alert("하위 구성요소를 불러오는 도중에 문제가 발생하였습니다.")
                     }
                 },
                 error: function () {
@@ -415,7 +422,9 @@
         }
 
 
+    function getReportInfo(){
 
+    }
     </script>
 </body>
 

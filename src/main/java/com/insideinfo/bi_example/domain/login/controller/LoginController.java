@@ -1,12 +1,10 @@
 package com.insideinfo.bi_example.domain.login.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.insideinfo.bi_example.domain.login.vo.FoldersVO;
+import com.insideinfo.bi_example.global.vo.FolderVO;
 import com.insideinfo.bi_example.domain.login.service.LoginService;
-import com.insideinfo.bi_example.domain.login.vo.loginVO;
-import com.insideinfo.bi_example.global.mstr.auth.MstrSession;
-import com.microstrategy.web.objects.WebObjectsException;
-import jakarta.servlet.http.HttpServlet;
+import com.insideinfo.bi_example.domain.login.vo.LoginVO;
+import com.insideinfo.bi_example.domain.login.vo.ResponseVO;
+import com.insideinfo.bi_example.domain.login.vo.SessionVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <pre>
@@ -31,6 +27,7 @@ import java.util.Map;
  * </pre>
  */
 @Controller
+@RequestMapping("/login")
 public class LoginController {
 
     @Autowired
@@ -47,7 +44,7 @@ public class LoginController {
      * </pre>
      * @return String : login/loginPage.mustache 화면
      */
-    @GetMapping("/login/loginPage")
+    @GetMapping("/loginPage")
     public String getLoginPage(){
         return "/login/login";
     }
@@ -62,13 +59,12 @@ public class LoginController {
      * 설명		: 로그인 처리 로직
      * 변경이력		: 2023.07.20 최초작성
      * </pre>
-     * @param loginMap : HTTP 요청 Body
+     * @param loginVO : HTTP 요청 Body
      * @return ModelAndView : login/loginPage.jsp 화면
      */
-    @PostMapping("/login/loginProcess")
+    @PostMapping("/loginProcess")
     @ResponseBody
-    public String loginProcess(@RequestBody loginVO loginVO, HttpServletRequest request) throws JsonProcessingException {
-
+    public ResponseVO loginProcess(@RequestBody LoginVO loginVO, HttpServletRequest httpServletRequest) {
 
         /**
          * 1. 만약 세션이 존재한다면? 이 페이지로 오지 않고 메인으로 가게 끔 redirect
@@ -79,12 +75,29 @@ public class LoginController {
          *
          * **/
 
-        System.out.println(loginVO.getLoginId());
-        System.out.println(loginVO.getLoginPassword());
+        System.out.println("로그인 ID : " + loginVO.getLoginId());
+        System.out.println("로그인 PWD : " + loginVO.getLoginPassword());
 
+        //응답 VO 생성
+        ResponseVO responseVO = new ResponseVO();
 
-        return "S00";
+        HttpSession httpSession = httpServletRequest.getSession();
+        String mstrAuthToken = (String)httpSession.getAttribute("X-MSTR-TOKEN");
 
+        // X-MSTR-TOKEN이 없을 경우, 로그인 로직 실행
+        if (mstrAuthToken == null || mstrAuthToken.isEmpty()) {
+            SessionVO sessionVO= loginService.login(loginVO);
+            httpSession.setAttribute("sessionInfo", sessionVO);
+            responseVO.setMsg("정상적으로 로그인 되었습니다.");
+        }
+        // 정상적인 반환이 아닐 경우에 에러처리 필요
+        else{
+            responseVO.setMsg("이미 로그인 된 사용자입니다.");
+        }
+
+        responseVO.setCode("S00");
+
+        return responseVO;
     }
 
 
@@ -111,14 +124,14 @@ public class LoginController {
         HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
 
 
-        ResponseEntity<List<FoldersVO>> response = new RestTemplate().exchange(
+        ResponseEntity<List<FolderVO>> response = new RestTemplate().exchange(
                 apiUrl,
                 HttpMethod.GET,
                 requestEntity,
-                new ParameterizedTypeReference<List<FoldersVO>>() {
+                new ParameterizedTypeReference<List<FolderVO>>() {
                 }
         );
-        List<FoldersVO> folderList = response.getBody();
+        List<FolderVO> folderList = response.getBody();
 
         System.out.println(folderList);
         model.addAttribute("folderList", folderList);
@@ -127,87 +140,87 @@ public class LoginController {
 
 
 
-    /**
-     * <pre>
-     * 메소스명		: login
-     * 작성일자		: 2023.07.20
-     * 작성자		: 이도현
-     * 설명		: 로그인 처리 로직
-     * 변경이력		: 2023.07.20 최초작성
-     * </pre>
-     * @param loginMap : HTTP 요청 Body
-     * @return ModelAndView : login/loginPage.jsp 화면
-     */
-    @PostMapping("/login/login")
-    @ResponseBody
-    public String login(@RequestBody Map<String, String> loginMap, Model model, HttpServletRequest request) throws JsonProcessingException {
-
-
-        Map<String,String> mstrAuthInfo = loginService.login(loginMap);
-
-
-        /**
-         * 1. Http 세션에 MSTR Token, Cookie, SessionID 넣은 뒤 return
-         * **/
-
-
-        HttpSession session = request.getSession(true);
-        session.setAttribute("X-MSTR-TOKEN", mstrAuthInfo.get("token"));
-        session.setAttribute("Cookie", mstrAuthInfo.get("cookies"));
-
-        return "S00";
-
-    }
-
-
-    /**
-     * <pre>
-     * 메소스명		: login
-     * 작성일자		: 2023.07.20
-     * 작성자		: 이도현
-     * 설명		: 로그인 처리 로직
-     * 변경이력		: 2023.07.20 최초작성
-     * </pre>
-     * @param loginMap : HTTP 요청 Body
-     * @return ModelAndView : login/loginPage.jsp 화면
-     */
-    @GetMapping("/login/login2")
-    public String login(Model model) throws JsonProcessingException {
-
-        Map<String,String> loginMap = new HashMap<>();
-        Map<String,String> mstrAuthInfo = loginService.login(loginMap);
-
-        List<FoldersVO> folderList = loginService.getFolderList(mstrAuthInfo);
-
-
-        for (FoldersVO folder: folderList) {
-            System.out.println(folder);
-        }
-
-        model.addAttribute("folderList", folderList);
-
-        return "/index";
-
-    }
-
-    @GetMapping("/test123")
-    public String test123(HttpServletRequest httpServletRequest, Model model) throws WebObjectsException {
-
-        String aa = httpServletRequest.getRemoteAddr();
-
-        System.out.println(aa);
-
-        MstrSession samplesession = new MstrSession();
-        
-        String mstrSessionId = samplesession.createSession("z","z",aa);
-
-        System.out.println("감이안온다");
-        System.out.println(mstrSessionId);
-
-        model.addAttribute("mstrSessionId", mstrSessionId);
-        return "/test123";
-
-    }
+//    /**
+//     * <pre>
+//     * 메소스명		: login
+//     * 작성일자		: 2023.07.20
+//     * 작성자		: 이도현
+//     * 설명		: 로그인 처리 로직
+//     * 변경이력		: 2023.07.20 최초작성
+//     * </pre>
+//     * @param loginMap : HTTP 요청 Body
+//     * @return ModelAndView : login/loginPage.jsp 화면
+//     */
+//    @PostMapping("/login/login")
+//    @ResponseBody
+//    public String login(@RequestBody Map<String, String> loginMap, Model model, HttpServletRequest request) throws JsonProcessingException {
+//
+//
+//        Map<String,String> mstrAuthInfo = loginService.login(loginMap);
+//
+//
+//        /**
+//         * 1. Http 세션에 MSTR Token, Cookie, SessionID 넣은 뒤 return
+//         * **/
+//
+//
+//        HttpSession session = request.getSession(true);
+//        session.setAttribute("X-MSTR-TOKEN", mstrAuthInfo.get("token"));
+//        session.setAttribute("Cookie", mstrAuthInfo.get("cookies"));
+//
+//        return "S00";
+//
+//    }
+//
+//
+//    /**
+//     * <pre>
+//     * 메소스명		: login
+//     * 작성일자		: 2023.07.20
+//     * 작성자		: 이도현
+//     * 설명		: 로그인 처리 로직
+//     * 변경이력		: 2023.07.20 최초작성
+//     * </pre>
+//     * @param loginMap : HTTP 요청 Body
+//     * @return ModelAndView : login/loginPage.jsp 화면
+//     */
+//    @GetMapping("/login/login2")
+//    public String login(Model model) throws JsonProcessingException {
+//
+//        Map<String,String> loginMap = new HashMap<>();
+//        Map<String,String> mstrAuthInfo = loginService.login(loginMap);
+//
+//        List<FoldersVO> folderList = loginService.getFolderList(mstrAuthInfo);
+//
+//
+//        for (FoldersVO folder: folderList) {
+//            System.out.println(folder);
+//        }
+//
+//        model.addAttribute("folderList", folderList);
+//
+//        return "/index";
+//
+//    }
+//
+//    @GetMapping("/test123")
+//    public String test123(HttpServletRequest httpServletRequest, Model model) throws WebObjectsException {
+//
+//        String aa = httpServletRequest.getRemoteAddr();
+//
+//        System.out.println(aa);
+//
+//        MstrSession samplesession = new MstrSession();
+//
+//        String mstrSessionId = samplesession.createSession("z","z",aa);
+//
+//        System.out.println("감이안온다");
+//        System.out.println(mstrSessionId);
+//
+//        model.addAttribute("mstrSessionId", mstrSessionId);
+//        return "/test123";
+//
+//    }
 
 
 

@@ -113,15 +113,13 @@
                 data: JSON.stringify(requestData),
                 contentType: "application/json",
                 method: 'POST',
-                dataType: "text",
+                dataType: "json",
                 success: function (responseData) {
-                    if (responseData === 'S00') {
-                        console.log(responseData)
-                        alert(responseData)
-                        alert('정상적으로 로그인 되었습니다.')
-                        location.href = "/login/main"
+                    if (responseData.code === 'S00') {
+                        alert(responseData.msg)
+                        location.href = "/main"
                     } else {
-                        alert(responseData)
+                        alert("뭔가 잘못되었습니다. \n errorCode :" + responseData.code)
                     }
                 },
                 error: function () {
@@ -130,9 +128,6 @@
             })
 
         }
-
-
-
 
     </script>
 </body>

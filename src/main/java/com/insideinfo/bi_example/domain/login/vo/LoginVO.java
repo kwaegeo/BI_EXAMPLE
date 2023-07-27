@@ -3,7 +3,7 @@ package com.insideinfo.bi_example.domain.login.vo;
 import lombok.Data;
 
 @Data
-public class loginVO {
+public class LoginVO {
 
     private String loginId;
 

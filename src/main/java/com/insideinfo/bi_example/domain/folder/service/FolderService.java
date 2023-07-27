@@ -1,22 +1,26 @@
 package com.insideinfo.bi_example.domain.folder.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.insideinfo.bi_example.domain.login.vo.FoldersVO;
+import com.insideinfo.bi_example.domain.login.vo.SessionVO;
 import com.insideinfo.bi_example.global.mstr.auth.MstrAuth;
+import com.insideinfo.bi_example.global.mstr.folder.MstrFolder;
+import com.insideinfo.bi_example.global.vo.FolderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class FolderService {
 
     @Autowired
-    private MstrAuth mstrAuth;
+    private MstrFolder mstrFolder;
 
 
+    public List<FolderVO> getSubList(String folderId, SessionVO sessionInfo){
 
+        List<FolderVO> folderList = mstrFolder.getSubList(folderId, sessionInfo);
+        return folderList;
+    }
 
 }
 

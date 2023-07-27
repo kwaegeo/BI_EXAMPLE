@@ -3,7 +3,9 @@ package com.insideinfo.bi_example.global.mstr.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.insideinfo.bi_example.domain.login.vo.FoldersVO;
+import com.insideinfo.bi_example.global.vo.FolderVO;
+import com.insideinfo.bi_example.domain.login.vo.LoginVO;
+import com.insideinfo.bi_example.domain.login.vo.SessionVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -27,11 +29,11 @@ public class MstrAuth {
     @Value("${PROJECTID}")
     private String PROJECTID;
 
-    public Map<String, String> getAuthToken(Map<String, String> loginMap) throws JsonProcessingException {
+    public SessionVO login(LoginVO loginVO){
 
-        String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "auth/login";
+        String mstrApiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "auth/login";
 
-        System.out.println("요청 URL: " + apiUrl);
+        System.out.println("요청 URL: " + mstrApiUrl);
 
         //header 생성
         org.springframework.http.HttpHeaders httpHeaders = new HttpHeaders();
@@ -39,43 +41,58 @@ public class MstrAuth {
 
         //body 값 추가
         Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("username", "administrator");
-        requestBody.put("password", "");
+        requestBody.put("username", loginVO.getLoginId());
+        requestBody.put("password", loginVO.getLoginPassword());
         requestBody.put("loginMode", "1");
         requestBody.put("maxSearch", "3");
         requestBody.put("workingSet", "10");
         requestBody.put("applicationType", "35");
+        requestBody.put("metadataLocale", "ko_KR");
+        requestBody.put("warehouseDataLocale", "ko_KR");
+        requestBody.put("displayLocale", "ko_KR");
+        requestBody.put("messagesLocale", "ko_KR");
+        requestBody.put("numberLocale", "ko_KR");
+        requestBody.put("timeZone", "asia/seoul");
 
-        // Convert the Map to JSON string
+        // Map을 JSON 형태로 변환
         ObjectMapper objectMapper = new ObjectMapper();
-        String requestBodyJson = objectMapper.writeValueAsString(requestBody);
+        String requestBodyJson = "";
+        try {
+            requestBodyJson = objectMapper.writeValueAsString(requestBody);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyJson, httpHeaders);
 
         ResponseEntity<String> response = new RestTemplate().exchange(
-                apiUrl,
+                mstrApiUrl,
                 HttpMethod.POST,
                 requestEntity,
                 String.class
         );
 
+        // X-MSTR-Token 추출
         String mstrAuthToken = response.getHeaders().getFirst("X-MSTR-AuthToken");
 
+        // CookieList 추출
         List<String> cookieList = response.getHeaders().get(HttpHeaders.SET_COOKIE);
 
-        System.out.println("내가 만든 쿠키~~");
-        System.out.println(cookieList);
-
+        // Cookie 하나의 문자열로 결합
         String cookiesAsString = String.join("; ", cookieList);
-        Map<String, String> maps = new HashMap<>();
 
-        maps.put("token", mstrAuthToken);
-        maps.put("cookies", cookiesAsString);
+        System.out.println("내가 만든 쿠키~: " + cookiesAsString);
 
-        return maps;
+        // session 정보 return
+        SessionVO sessionInfo = SessionVO.builder().
+                mstrAuthToken(mstrAuthToken).
+                cookieString(cookiesAsString).
+                build();
+
+        return sessionInfo;
     }
 
-    public List<FoldersVO> getFolderList(Map<String, String> mstrAuthInfo) throws JsonProcessingException {
+    public List<FolderVO> getFolderList(Map<String, String> mstrAuthInfo) throws JsonProcessingException {
         String apiUrl = "http://" + BASEIP + ":" + BASEPORT+ BASEURL + "folders";
 
         System.out.println("요청 URL: " + apiUrl);
@@ -89,14 +106,14 @@ public class MstrAuth {
         HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
 
 
-        ResponseEntity<List<FoldersVO>> response = new RestTemplate().exchange(
+        ResponseEntity<List<FolderVO>> response = new RestTemplate().exchange(
                 apiUrl,
                 HttpMethod.GET,
                 requestEntity,
-                new ParameterizedTypeReference<List<FoldersVO>>() {
+                new ParameterizedTypeReference<List<FolderVO>>() {
                 }
         );
-        List<FoldersVO> folderList = response.getBody();
+        List<FolderVO> folderList = response.getBody();
 
         return folderList;
     }
