@@ -96,6 +96,15 @@
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
+            <!-- Nav Item - Tables -->
+            <li class="nav-item">
+                <a class="nav-link" href="tables.html">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span onclick="getReportInfo('256263D142248D56446F3A80AD100C06')">고객소득분석</span></a>
+            </li>
+
+
+
             <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
@@ -423,7 +432,31 @@
 
 
     function getReportInfo(){
-
+        $.ajax({
+            url: '/folder/subList',
+            data: requestData,
+            method: 'GET',
+            dataType: "json",
+            success: function (responseData) {
+                if (responseData.code === 'S00') {
+                    folderRoot.children().remove();
+                    responseData.folderList.forEach(function (item, index){
+                        var newHtml = $("<span>", {
+                            "class": "collapse-item",
+                            "id": item.id,
+                            "onclick": getReportInfo(item.id),
+                            "text": item.name
+                        });
+                        folderRoot.append(newHtml);
+                    })
+                } else {
+                    alert("하위 구성요소를 불러오는 도중에 문제가 발생하였습니다.")
+                }
+            },
+            error: function () {
+                alert("서버에 접속할 수 없습니다.")
+            }
+        })
     }
     </script>
 </body>

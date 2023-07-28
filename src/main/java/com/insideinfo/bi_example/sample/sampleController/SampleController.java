@@ -44,15 +44,16 @@ public class SampleController {
 
             // Set up session properties
             serverSession.setServerName("192.168.70.245"); // Should be replaced with the name of an Intelligence Server
-            serverSession.setAuthMode(1);
             serverSession.setServerPort(0);
             serverSession.setProjectName("MicroStrategy Tutorial"); // Project where session is created
+            serverSession.setLocaleID(1042); // 한국어
+            serverSession.setAuthMode(1);
             serverSession.setLogin("administrator"); // User ID
             serverSession.setPassword(""); // Password
             // Initialize the session with the above parameters
             try {
                 System.out.println("nSession created with ID: "+ serverSession.getSessionID());
-                System.out.println("Session State: "+ serverSession.saveState(2));
+                System.out.println("Session State: "+ serverSession.saveState(0));
             } catch (WebObjectsException ex) {
                 System.out.println( "Error creating session:" + ex.getMessage());
             }
@@ -65,10 +66,10 @@ public class SampleController {
         // urlSB.append("&port=0");
         urlSB.append("&project=").append("MicroStrategy+Tutorial"); // Project name
         urlSB.append("&evt=").append(4001);
-        urlSB.append("&reportID=").append("E0DE2E1B408BD9FA8941E5B2E4FE876D"); //Report ID
+        urlSB.append("&reportID=").append("F94F34354152449D3359579FA7A12EF7"); //Report ID
         urlSB.append("&reportViewMode=").append(1);
         urlSB.append("&src=mstrWeb.").append("reportNoHeaderNoFooterNoPath").append(".").append(4001);
-        urlSB.append("&usrSmgr=").append(serverSession.saveState(2));
+        urlSB.append("&usrSmgr=").append(serverSession.saveState(0));
 
         System.out.println(urlSB.toString()); // Final URL is printed to console.
         System.out.println();
